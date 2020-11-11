@@ -17,7 +17,7 @@ shrinkage <- c(RNAseq = 0.486223918802408, micro = 0.938776330169865)
 # Model 0 ####
 # Prepare the data:
 Ab <- lapply(At, function(x) scale2(x, bias = TRUE)/sqrt(NCOL(x)))
-C <- matrix(c(0, 1, 1, 0), ncol = 2, dimnames = list(names(A), names(A)))
+C <- matrix(c(0, 1, 1, 0), ncol = 2, dimnames = list(names(Ab), names(Ab)))
 model0 <- sgcca(Ab, scale = FALSE, scheme = "horst", C =  C, bias = TRUE,
                 c1 = shrinkage)
 model0 <- improve(model0, names(Ab))
