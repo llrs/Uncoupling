@@ -40,8 +40,8 @@ saveRDS(centroid, "data_out/centroid_tau.RDS")
 
 #  factorial ####
 out <- apply(taus.combn, 1, sgcca_eval, scheme = "factorial")
-centroid <- cbind.data.frame(t(out), taus.combn)
-saveRDS(centroid, "data_out/factorial_tau.RDS")
+factorial <- cbind.data.frame(t(out), taus.combn)
+saveRDS(factorial, "data_out/factorial_tau.RDS")
 
 # horst ####
 out <- apply(taus.combn, 1, sgcca_eval, scheme = "horst")
