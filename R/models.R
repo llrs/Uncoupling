@@ -68,6 +68,6 @@ out_model <- search_model(A = A2b, c1 = c(shrinkage, 1, 1, 1), scheme = "horst",
                           nWeights = 11)
 
 # Search all models
-
+saveRDS(out_model, "data_out/uncoupling_models2.RDS")
 
 # Analyze the best model in deep:
