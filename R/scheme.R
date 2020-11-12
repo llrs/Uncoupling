@@ -47,4 +47,23 @@ def <- as.data.frame(out2)
 def$weights <- as.factor(def$weights)
 offset <- is.na(def$AVE_inner)
 centroid_weights <- droplevels(def[!offset, ])
-saveRDS(centroid_weights, file = "centroid_weights.RDS")
+saveRDS(centroid_weights, file = "data_out/centroid_weights.RDS")
+
+# * horst  ####
+out <- sapply(design, testing, type = "horst", USE.NAMES = FALSE)
+out2 <- t(out)
+def <- as.data.frame(out2)
+def$weights <- as.factor(def$weights)
+offset <- is.na(def$AVE_inner)
+horst_weights <- droplevels(def[!offset, ])
+saveRDS(horst_weights, file = "data_out/horst_weights.RDS")
+
+# * factorial  ####
+out <- sapply(design, testing, type = "factorial", USE.NAMES = FALSE)
+out2 <- t(out)
+def <- as.data.frame(out2)
+def$weights <- as.factor(def$weights)
+offset <- is.na(def$AVE_inner)
+factorial_weights <- droplevels(def[!offset, ])
+saveRDS(factorial_weights, file = "data_out/factorial_weights.RDS")
+
