@@ -54,7 +54,7 @@ saveRDS(out_model, "data_out/uncoupling_models1.RDS")
 # Analyze the best model in deep:
 
 # Models 2 ####
-A2 <- A1t[1:2]
+A2 <- A1[1:2]
 A2$Location <- Location
 A2$Demographic <- Demographic
 A2$Time <- Time
