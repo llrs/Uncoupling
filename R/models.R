@@ -18,7 +18,7 @@ shrinkage <- c(RNAseq = 0.486223918802408, micro = 0.938776330169865)
 # Prepare the data:
 Ab <- lapply(At, function(x) scale2(x, bias = TRUE)/sqrt(NCOL(x)))
 C <- matrix(c(0, 1, 1, 0), ncol = 2, dimnames = list(names(Ab), names(Ab)))
-model0 <- sgcca(Ab, scale = FALSE, scheme = "horst", C =  C, bias = TRUE,
+model0 <- sgcca(Ab, scale = FALSE, scheme = "centroid", C =  C, bias = TRUE,
                 c1 = shrinkage)
 model0 <- improve(model0, names(Ab))
 
@@ -44,7 +44,7 @@ A1$meta <- cbind(meta2, meta$AgeAtDateOfSampling)
 A1b <- lapply(A1, function(x) scale2(x, bias = TRUE)/sqrt(NCOL(x)))
 
 # Search all models
-out_model <- search_model(A = A1b, c1 = c(shrinkage, 1), scheme = "horst",
+out_model <- search_model(A = A1b, c1 = c(shrinkage, 1), scheme = "centroid",
                           scale = FALSE, verbose = FALSE,
                           ncomp = rep(1, length(A1b)),
                           bias = TRUE, 
@@ -61,7 +61,7 @@ A2$Time <- Time
 
 A2b <- lapply(A2, function(x) scale2(x, bias = TRUE)/sqrt(NCOL(x)))
 
-out_model <- search_model(A = A2b, c1 = c(shrinkage, 1, 1, 1), scheme = "horst",
+out_model <- search_model(A = A2b, c1 = c(shrinkage, 1, 1, 1), scheme = "centroid",
                           scale = FALSE, verbose = FALSE,
                           ncomp = rep(1, length(A2b)),
                           bias = TRUE, 
