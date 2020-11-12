@@ -43,29 +43,34 @@ saveRDS(centroid, "data_out/centroid_tau.RDS")
 
 
 plot_tau2AVE <- function(data, title) {
-  p1 <- data %>% 
-    group_by(RNAseq, y) %>% 
-    summarize(AVE_inner = median(AVE_inner)) %>% 
-    ungroup() %>% 
+  limits <- c(0.4, 0.7)
+  p1 <- data %>%
+    group_by(GE, y) %>%
+    summarize(AVE_inner = median(AVE_inner)) %>%
+    ungroup() %>%
     ggplot() +
-    geom_point(aes(RNAseq, y, col = AVE_inner)) + 
-    scale_color_viridis_c(limits = c(0.4, 0.8)) +
+    geom_point(aes(GE, y, col = AVE_inner)) +
+    scale_color_viridis_c(limits = limits) +
     theme_minimal() +
-    labs(col = "inner AVE")
-  p2 <- data %>% 
-    group_by(micro, y) %>% 
-    summarize(AVE_inner = median(AVE_inner)) %>% 
+    labs(col = "inner AVE") +
+    scale_y_continuous(position = "right") +
+    theme(axis.title.y.right = element_text(angle = 0, vjust = 0.5, hjust = 1))
+  
+  p2 <- data %>%
+    group_by(CGH, y) %>%
+    summarize(AVE_inner = median(AVE_inner)) %>%
     ggplot() +
-    geom_point(aes(micro, y, col = AVE_inner)) + 
-    scale_color_viridis_c(limits = c(0.4, 0.8)) +
+    geom_point(aes(CGH, y, col = AVE_inner)) +
+    scale_color_viridis_c(limits = limits) +
     theme_minimal() +
-    labs(col = "inner AVE")
-  p1 + p2 +  plot_layout(guides = 'collect')  + 
-    plot_annotation(title = "Centroid")
+    labs(col = "inner AVE") +
+    theme(axis.title.y = element_blank())
+  p1 + p2 +  plot_layout(guides = 'collect')  +
+    plot_annotation(tag_levels = "A", title = title)
   
 }
 
-plot_tau2AVE(centroid, "Centroid scheme")
+plot_tau2AVE(centroid, "Inner AVE depending on tau")
 
 #  factorial ####
 out <- apply(taus.combn, 1, sgcca_eval, scheme = "factorial")
