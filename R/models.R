@@ -41,14 +41,14 @@ designsc <- designs[keep]
 A1 <- At2
 A1$meta <- meta2
 A1b <- lapply(A1, function(x) scale2(x, bias = TRUE)/sqrt(NCOL(x)))
-
-# Search all models
-out_model <- search_model(A = A1b, c1 = c(shrinkage, 1), scheme = "centroid",
-                          scale = FALSE, verbose = FALSE,
-                          ncomp = rep(1, length(A1b)),
-                          bias = TRUE, 
-                          nWeights = 11) # To end up with .1 intervals
-saveRDS(out_model, "data_out/uncoupling_models1.RDS")
+# 
+# # Search all models
+# out_model <- search_model(A = A1b, c1 = c(shrinkage, 1), scheme = "centroid",
+#                           scale = FALSE, verbose = FALSE,
+#                           ncomp = rep(1, length(A1b)),
+#                           bias = TRUE, 
+#                           nWeights = 11) # To end up with .1 intervals
+# saveRDS(out_model, "data_out/uncoupling_models1.RDS")
 
 # Analyze the best model in deep:
 
@@ -60,13 +60,37 @@ A2$Time <- Time
 
 A2b <- lapply(A2, function(x) scale2(x, bias = TRUE)/sqrt(NCOL(x)))
 
-out_model <- search_model(A = A2b, c1 = c(shrinkage, 1, 1, 1), scheme = "centroid",
-                          scale = FALSE, verbose = FALSE,
-                          ncomp = rep(1, length(A2b)),
-                          bias = TRUE, 
-                          nWeights = 11)
+# * Prepare some random designs ####
+designs <- weight_design(weights = 3, size = 5)
+keep <- vapply(designs, RGCCA::correct, logical(1L))
+designs <- designs[keep]
 
-# Search all models
-saveRDS(out_model, "data_out/uncoupling_models2.RDS")
+# Random subsample of 10% of the trials
+# Store all AVEs in the path so that it can be confirmed that it is the max value
+set.seed(4672679)
+s <- sample(designs, size = min(length(designs)*.1, 2000))
+# Perform the sgcca on these samples
+testing <- function(x, type, ...) {
+  result.sgcca <- RGCCA::sgcca(C = x, 
+                               scheme = type, 
+                               verbose = FALSE, 
+                               scale = FALSE,
+                               ...)
+  analyze(result.sgcca)
+}
+# Estimated time of three days with designs and about 1 hour with the sample of 1000
+out <- sapply(designs, testing, type = "centroid", A = A2b, c1 = shrinkage, USE.NAMES = FALSE)
+out2 <- as.data.frame(t(out))
+saveRDS(out2, "data_out/sample_model3_boot.RDS")
+
+# Not possible to run due to the number of combinations of the designs
+# out_model <- search_model(A = A2b, c1 = c(shrinkage, 1, 1, 1), scheme = "centroid",
+#                           scale = FALSE, verbose = FALSE,
+#                           ncomp = rep(1, length(A2b)),
+#                           bias = TRUE, 
+#                           nWeights = 11)
+# 
+# # Search all models
+# saveRDS(out_model, "data_out/uncoupling_models2.RDS")
 
 # Analyze the best model in deep:
