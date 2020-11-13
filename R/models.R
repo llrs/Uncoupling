@@ -35,7 +35,7 @@ meta2 <- model_RGCCA(meta, c("Gender", "Type", "state", "Location", "AgeAtDateOf
 
 # Models 1 ####
 designs <- weight_design(weights = 11, size = 3)
-keep <- vapply(designs, RGCCA::correct, logical(1L))
+keep <- vapply(designs, correct, logical(1L))
 designsc <- designs[keep]
 
 A1 <- At2
@@ -68,7 +68,7 @@ designs <- designs[keep]
 # Random subsample of 10% of the trials
 # Store all AVEs in the path so that it can be confirmed that it is the max value
 set.seed(4672679)
-s <- sample(designs, size = min(length(designs)*.1, 2000))
+s <- sample(designs, size = min(length(designs)*.1, 5000))
 # Perform the sgcca on these samples
 testing <- function(x, type, ...) {
   result.sgcca <- RGCCA::sgcca(C = x, 
@@ -79,7 +79,7 @@ testing <- function(x, type, ...) {
   analyze(result.sgcca)
 }
 # Estimated time of three days with designs and about 1 hour with the sample of 1000
-out <- sapply(designs, testing, type = "centroid", A = A2b, c1 = shrinkage, USE.NAMES = FALSE)
+out <- sapply(s, testing, type = "centroid", A = A2b, c1 = c(shrinkage, 1, 1, 1), USE.NAMES = FALSE)
 out2 <- as.data.frame(t(out))
 saveRDS(out2, "data_out/sample_model3_boot.RDS")
 
