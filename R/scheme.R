@@ -2,6 +2,8 @@ library("RGCCA")
 library("ggplot2")
 library("patchwork")
 library("integration")
+library("dplyr")
+library("broom")
 theme_set(theme_minimal())
 
 # Prepare data ####
@@ -67,3 +69,21 @@ offset <- is.na(def$AVE_inner)
 factorial_weights <- droplevels(def[!offset, ])
 saveRDS(factorial_weights, file = "data_out/factorial_weights.RDS")
 
+
+factorial <- readRDS("data_out/factorial_weights.RDS")
+horst <- readRDS("data_out/horst_weights.RDS")
+centroid <- readRDS("data_out/centroid_weights.RDS")
+
+factorial <- cbind(factorial, model = "factorial")
+horst <- cbind(horst, model = "horst")
+centroid <- cbind(centroid, model = "centroid")
+weights <- rbind(factorial, horst, centroid)
+
+weights %>% 
+  ggplot() +
+  geom_count(aes(AVE_outer, AVE_inner)) +
+  facet_wrap(~model) +
+  labs(x = "outer AVE", y = "inner AVE", 
+       title = "Changing weight on the different schemes",
+       size = "Models")
+ggsave("Figures/weights_schemes_AVE.png")
