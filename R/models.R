@@ -1,7 +1,6 @@
 library("inteRmodel")
 library("integration")
 library("RGCCA")
-library("fastDummies")
 
 A <- readRDS("data_out/RGCCA_uncoupling_data.RDS")
 meta <- A$meta
@@ -29,10 +28,10 @@ convert2dummy <- function(meta, names) {
   new_names <- colnames(meta2)[!colnames(meta2) %in% names]
   meta2[, new_names, drop = FALSE]
 }
-Time <- meta[, c("AgeAtDateOfSampling"), drop = FALSE]
-Demographic <- convert2dummy(meta, c("Gender", "Type", "state"))
-Location <- convert2dummy(meta, c("Location"))
-meta2 <- convert2dummy(meta, c("Gender", "Type", "state", "Location"))
+Time <- model_RGCCA(meta, "AgeAtDateOfSampling")
+Demographic <- model_RGCCA(meta, c("Gender", "Type", "state"))
+Location <- model_RGCCA(meta, c("Location"))
+meta2 <- model_RGCCA(meta, c("Gender", "Type", "state", "Location", "AgeAtDateOfSampling"))
 
 # Models 1 ####
 designs <- weight_design(weights = 11, size = 3)
@@ -40,7 +39,7 @@ keep <- vapply(designs, RGCCA::correct, logical(1L))
 designsc <- designs[keep]
 
 A1 <- At2
-A1$meta <- cbind(meta2, meta$AgeAtDateOfSampling)
+A1$meta <- meta2
 A1b <- lapply(A1, function(x) scale2(x, bias = TRUE)/sqrt(NCOL(x)))
 
 # Search all models
