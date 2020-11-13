@@ -71,17 +71,28 @@ set.seed(4672679)
 s <- sample(designs, size = min(length(designs)*.1, 5000))
 # Perform the sgcca on these samples
 testing <- function(x, type, ...) {
-  result.sgcca <- RGCCA::sgcca(C = x, 
-                               scheme = type, 
-                               verbose = FALSE, 
+  result.sgcca <- RGCCA::sgcca(C = x,
+                               scheme = type,
+                               verbose = FALSE,
                                scale = FALSE,
                                ...)
   analyze(result.sgcca)
 }
 # Estimated time of three days with designs and about 1 hour with the sample of 1000
-out <- sapply(s, testing, type = "centroid", A = A2b, c1 = c(shrinkage, 1, 1, 1), USE.NAMES = FALSE)
-out2 <- as.data.frame(t(out))
-saveRDS(out2, "data_out/sample_model3_boot.RDS")
+# out <- sapply(s, testing, type = "centroid", A = A2b, c1 = c(shrinkage, 1, 1, 1), USE.NAMES = FALSE)
+# out2 <- as.data.frame(t(out))
+# saveRDS(out2, "data_out/sample_model3_boot.RDS")
+
+C <- diag(5)
+diag(C) <- 0
+columns <- grep("var", colnames(out2))
+model <- symm(C, out2[which.max(out2$AVE_inner), columns])
+model <- subSymm(model, 4, 5, 1)
+w <- which(lower.tri(model) & model != 0)
+d <- weight_design(11, 5, w)
+
+out3 <- sapply(d, testing, type = "centroid", A = A2b, c1 = c(shrinkage, 1, 1, 1), USE.NAMES = FALSE)
+# saveRDS(out3, "data_out/sample_model3_refined.RDS")
 
 # Not possible to run due to the number of combinations of the designs
 # out_model <- search_model(A = A2b, c1 = c(shrinkage, 1, 1, 1), scheme = "centroid",
