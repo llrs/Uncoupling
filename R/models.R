@@ -92,7 +92,7 @@ w <- which(lower.tri(model) & model != 0)
 d <- weight_design(11, 5, w)
 
 out3 <- sapply(d, testing, type = "centroid", A = A2b, c1 = c(shrinkage, 1, 1, 1), USE.NAMES = FALSE)
-# saveRDS(out3, "data_out/sample_model3_refined.RDS")
+saveRDS(out3, "data_out/sample_model3_refined.RDS")
 
 # Not possible to run due to the number of combinations of the designs
 # out_model <- search_model(A = A2b, c1 = c(shrinkage, 1, 1, 1), scheme = "centroid",
