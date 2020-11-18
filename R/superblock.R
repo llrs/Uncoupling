@@ -10,16 +10,14 @@ meta <- A$meta
 
 # Prepare the data for the models ####
 At <- lapply(A[1:2], t)
-At2 <- clean_unvariable(At)
+B <- clean_unvariable(At)
 
-At2[[3]] = At2[[3]]
-B = At2
-B[[3]] = Reduce("cbind", At2[1:(length(At2)-1)])
+B[[3]]<- Reduce("cbind", At2[1:(length(At2)-1)])
 # superblock
-B[[4]] = A[[3]]
-names(B) <- c("GE", "CGH", "Superblock", "Loc")
+B[[4]] <- model_RGCCA(A[[3]], c("Gender", "AgeAtDateOfSampling", "Type", "Location", "state"))
+names(B) <- c("RNAseq", "micro", "Superblock", "meta")
 # Prepare some preliminary design/weights
-C <-  matrix(0,ncol = 4, nrow = 4)
+C <-  matrix(0, ncol = 4, nrow = 4)
 dimnames(C) <- list(names(B), names(B))
 
 
@@ -29,21 +27,21 @@ D <- matrix(0, nb_block, nb_block)
 D[, nb_block - 1] <- 1
 D[nb_block - 1, ] <- 1
 diag(D) <- 0
-shrinkage <- c(RNAseq = 0.486223918802408, micro = 0.938776330169865, y = 0.382540494844239, 1)
-sgcca.glioma <- sgcca(B, D, c1 = shrinkage,
-                     ncomp = c(rep(2, (length() - 1)),1),
+shrinkage <- c(RNAseq = 0.486223918802408, micro = 0.938776330169865, 0.5, y = 1)
+sgcca.out <- sgcca(B, D, c1 = shrinkage,
+                     ncomp = c(rep(2, (length(B) - 1)), 1),
                      scheme = "centroid", scale = TRUE,
                      verbose = FALSE)
-saveRDS(sgcca.glioma, "superblock_sgcca.RDS")
-glioma.superblock <- cbind.data.frame(sgcca.glioma$Y[[3]], Loc, Samples = rownames(sgcca.glioma$Y[[3]]))
-glioma.GE <- cbind.data.frame(sgcca.glioma$Y[[1]], Loc, Samples = rownames(sgcca.glioma$Y[[3]]))
+saveRDS(sgcca.out, "data_out/superblock_sgcca.RDS")
+glioma.superblock <- cbind.data.frame(sgcca.out$Y[[3]], A[[3]], Samples = rownames(sgcca.out$Y[[3]]))
+glioma.GE <- cbind.data.frame(sgcca.out$Y[[1]], A[[3]], Samples = rownames(sgcca.out$Y[[3]]))
 ggplot(glioma.superblock) +
-  geom_text(aes(comp1, comp2, col = Loc, label = Samples)) +
+  geom_text(aes(comp1, comp2, col = Location, label = Samples)) +
   ggtitle("Original design", subtitle = "Superblock")
 ggplot(glioma.GE) +
-  geom_text(aes(comp1, comp2, col = Loc, label = Samples)) +
+  geom_text(aes(comp1, comp2, col = Location, label = Samples)) +
   ggtitle("Original design", subtitle = "GE")
-sgcca.glioma$AVE$AVE_inner
+sgcca.out$AVE$AVE_inner
 
 nweights <- 4
 weight <- seq(from = 0, to = 1, length.out = nweights)
@@ -58,13 +56,13 @@ C_list3 <- C_list3[keep]
 keep <- vapply(C_list3, correct, logical(1L))
 design <- C_list3[keep]
 testing <- function(x, type) {
-  result.sgcca <- RGCCA::sgcca(B, x, 
-                               c1 = c(.071, .2, 1/sqrt(NCOL(B[[3]])) + .2, 1), 
-                               ncomp = c(1, 1, 1), 
+  try({result.sgcca <- RGCCA::sgcca(B, x, 
+                               c1 = shrinkage, 
+                               ncomp = c(1, 1, 1, 1), 
                                scheme = type, verbose = FALSE)
   
   out <- analyze(result.sgcca)
-  c(out, "var11" = result.sgcca$C[1, 1])
+  c(out, "var11" = result.sgcca$C[1, 1])}, silent = TRUE)
 }
 
 
