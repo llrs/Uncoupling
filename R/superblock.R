@@ -12,7 +12,7 @@ meta <- A$meta
 At <- lapply(A[1:2], t)
 B <- clean_unvariable(At)
 
-B[[3]]<- Reduce("cbind", At2[1:(length(At2)-1)])
+B[[3]] <- Reduce("cbind", B)
 # superblock
 B[[4]] <- model_RGCCA(A[[3]], c("Gender", "AgeAtDateOfSampling", "Type", "Location", "state"))
 names(B) <- c("RNAseq", "micro", "Superblock", "meta")
