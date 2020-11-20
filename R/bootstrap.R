@@ -48,8 +48,11 @@ model2.2 <- readRDS("data_out/model2.2.RDS")
 m2.2 <- model2.2$C
 
 
-index <- index(nrow(A), 1000)
+index <- boot_index(nrow(meta), 1000)
 
 boot0 <- boot_index_sgcca(index, A = Ab, C = m0, c1 = shrinkage, scale = FALSE)
+saveRDS(boot0, "data_out/boot0.RDS")
 boot1.2 <- boot_index_sgcca(index, A = A1b, C = m1.2, c1 = c(shrinkage, 1), scale = FALSE)
+saveRDS(boot1.2, "data_out/boot1.2.RDS")
 boot2.2 <- boot_index_sgcca(index, A = A2b, C = m2.2, c1 = c(shrinkage, 1, 1, 1), scale = FALSE)
+saveRDS(boot2.2, "data_out/boot2.2.RDS")
