@@ -1,3 +1,4 @@
+library("RGCCA")
 library("inteRmodel")
 
 # Prepare data ####
@@ -14,7 +15,7 @@ for (i in seq_len(boots)) {
 
 # Prepare the data for the models ####
 At <- lapply(A[1:2], t)
-At2 <- clean_unvariable(At)
+At2 <- integration::clean_unvariable(At)
 Ab <- lapply(At2, function(x) scale2(x, bias = TRUE)/sqrt(NCOL(x)))
 
 # Tau estimate
