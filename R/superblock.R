@@ -67,6 +67,7 @@ testing <- function(x, type) {
 
 
 out <- sapply(design, testing, type = "centroid", USE.NAMES = FALSE)
+saveRDS(out, "data_out/superblock_raw.RDS")
 out2 <- t(out)
 def <- as.data.frame(out2)
 def$weights <- as.factor(def$weights)
