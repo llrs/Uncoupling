@@ -33,6 +33,7 @@ sgcca.out <- sgcca(B, D, c1 = shrinkage,
                      scheme = "centroid", scale = TRUE,
                      verbose = FALSE)
 saveRDS(sgcca.out, "data_out/superblock_sgcca.RDS")
+sgcca.out <- readRDS("data_out/superblock_sgcca.RDS")
 glioma.superblock <- cbind.data.frame(sgcca.out$Y[[3]], A[[3]], Samples = rownames(sgcca.out$Y[[3]]))
 glioma.GE <- cbind.data.frame(sgcca.out$Y[[1]], A[[3]], Samples = rownames(sgcca.out$Y[[3]]))
 ggplot(glioma.superblock) +
@@ -43,9 +44,32 @@ ggplot(glioma.GE) +
   ggtitle("Original design", subtitle = "GE")
 sgcca.out$AVE$AVE_inner
 
-nweights <- 4
+nweights <- 11
 weight <- seq(from = 0, to = 1, length.out = nweights)
 C_list2 <- weight_design(nweights, 4)
+keep <- check_design(C_list2)
+C_list_c <- C_list2[keep]
+
+keep <- vapply(C_list_c, correct, logical(1L))
+design <- C_list_c[keep]
+
+d <- sample(design, 10000)
+testing <- function(x, type) {
+  try({result.sgcca <- RGCCA::sgcca(B, x, 
+                                    c1 = shrinkage, 
+                                    ncomp = c(1, 1, 1, 1), 
+                                    scheme = type, verbose = FALSE)
+  
+  out <- analyze(result.sgcca)
+  c(out, "var11" = result.sgcca$C[1, 1])}, silent = TRUE)
+}
+
+
+out <- sapply(d, testing, type = "centroid", USE.NAMES = FALSE)
+saveRDS(out, "data_out/superblock_2.RDS")
+stop("analyzed a bunch of data")
+
+C_list2 <- weight_design(4, 4)
 C_list3 <- c(C_list2, 
              lapply(C_list2, function(x){x[1, 1] <- weight[2];x}),
              lapply(C_list2, function(x){x[1, 1] <- weight[3];x}),
@@ -66,11 +90,19 @@ testing <- function(x, type) {
 }
 
 
-out <- sapply(design, testing, type = "centroid", USE.NAMES = FALSE)
+out <- sapply(design[1:5], testing, type = "centroid", USE.NAMES = FALSE)
 saveRDS(out, "data_out/superblock_raw.RDS")
+out_working <- out[lengths(out) != 1]
+def <- as.data.frame(t(simplify2array(out_working)))
 out2 <- t(out)
 def <- as.data.frame(out2)
 def$weights <- as.factor(def$weights)
 offset <- is.na(def$AVE_inner)
 def <- droplevels(def[!offset, ])
 saveRDS(def, file = "data_out/superblock_interactions.RDS")
+
+ggplot(def) +
+  geom_count(aes(AVE_inner, AVE_outer)) 
+
+def %>% 
+  filter(AVE_inner == max(AVE_inner))
