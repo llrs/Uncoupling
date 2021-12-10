@@ -50,12 +50,13 @@ saveRDS(model1.1, "data_out/model1.1.RDS")
 designs <- weight_design(weights = 11, size = 3)
 keep <- vapply(designs, correct, logical(1L))
 designsc <- designs[keep]
-# out_model <- search_model(A = A1b, c1 = c(shrinkage, 1), scheme = "centroid",
-#                           scale = FALSE, verbose = FALSE,
-#                           ncomp = rep(1, length(A1b)),
-#                           bias = TRUE, 
-#                           nWeights = 11) # To end up with .1 intervals
-# saveRDS(out_model, "data_out/uncoupling_models1.RDS")
+out_model <- search_model(A = A1b, c1 = c(shrinkage, 1), scheme = "centroid",
+                          scale = FALSE, verbose = FALSE,
+                          ncomp = rep(1, length(A1b)),
+                          bias = TRUE,
+                          nWeights = 11,
+                          BPPARAM = BiocParallel::MulticoreParam(workers = 6)) # To end up with .1 intervals
+saveRDS(out_model, "data_out/uncoupling_models1.RDS")
 out_model <- readRDS("data_out/uncoupling_models1.RDS")
 
 C <- diag(3)
@@ -119,9 +120,9 @@ testing <- function(x, type, ...) {
   analyze(result.sgcca)
 }
 # Estimated time of three days with designs and about 1 hour with the sample of 1000
-# out <- sapply(s, testing, type = "centroid", A = A2b, c1 = c(shrinkage, 1, 1, 1), USE.NAMES = FALSE)
-# out2 <- as.data.frame(t(out))
-# saveRDS(out2, "data_out/sample_model3_boot.RDS")
+out <- sapply(s, testing, type = "centroid", A = A2b, c1 = c(shrinkage, 1, 1, 1), USE.NAMES = FALSE)
+out2 <- as.data.frame(t(out))
+saveRDS(out2, "data_out/sample_model3_boot.RDS")
 out2 <- readRDS("data_out/sample_model3_boot.RDS")
 
 
@@ -131,8 +132,8 @@ model <- subSymm(model, 4, 5, 1)
 w <- which(lower.tri(model) & model != 0)
 d <- weight_design(11, 5, w)
 
-# out3 <- sapply(d, testing, type = "centroid", A = A2b, c1 = c(shrinkage, 1, 1, 1), USE.NAMES = FALSE)
-# saveRDS(out3, "data_out/sample_model3_refined.RDS")
+out3 <- sapply(d, testing, type = "centroid", A = A2b, c1 = c(shrinkage, 1, 1, 1), USE.NAMES = FALSE)
+saveRDS(out3, "data_out/sample_model3_refined.RDS")
 
 out3 <- readRDS("data_out/sample_model3_refined.RDS")
 a <- vapply(out3, is, class = "numeric", logical(1L))
@@ -168,14 +169,15 @@ ggplot(model2.2_Y) +
 meta %>% 
   count(Location, Type, sort = TRUE)
 # Not possible to run due to the number of combinations of the designs
-# out_model <- search_model(A = A2b, c1 = c(shrinkage, 1, 1, 1), scheme = "centroid",
-#                           scale = FALSE, verbose = FALSE,
-#                           ncomp = rep(1, length(A2b)),
-#                           bias = TRUE, 
-#                           nWeights = 11)
-# 
-# # Search all models
-# saveRDS(out_model, "data_out/uncoupling_models2.RDS")
+out_model <- search_model(A = A2b, c1 = c(shrinkage, 1, 1, 1), scheme = "centroid",
+                          scale = FALSE, verbose = FALSE,
+                          ncomp = rep(1, length(A2b)),
+                          bias = TRUE,
+                          nWeights = 11,
+                          BPPARAM = BiocParallel::MulticoreParam(workers = 6))
+
+# Search all models
+saveRDS(out_model, "data_out/uncoupling_models2.RDS")
 
 # Analyze the best model in deep:
 
