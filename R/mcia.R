@@ -11,5 +11,5 @@ ggplot(data_plot) +
   geom_point(aes(SynVar1, SynVar2, col = state, shape = Location), size = 5) +
   scale_color_brewer(type = "qual") +
   theme_minimal() +
-  labs(title = "MCIA on data from Uncoupling...") 
+  labs(title = "MCIA on data from Uncoupling...", col = "State") 
 ggsave("Figures/mcia_uncoupling.png")
