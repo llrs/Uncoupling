@@ -67,8 +67,8 @@ model1.2 <- sgcca(A1b, C = m1.2, scale = FALSE, c1 = c(shrinkage, 1))
 model1.2 <- improve(model1.2, names(A1b))
 saveRDS(model1.2, "data_out/model1.2.RDS")
 
-model1.2_plot <- cbind(RNAseq = model1.2_out$Y[[1]], model1.2_out$Y[[2]],  
-                       model1.2_out$Y[[3]], meta)
+model1.2_plot <- cbind(RNAseq = model1.2$Y[[1]], model1.2$Y[[2]],  
+                       model1.2$Y[[3]], meta)
 colnames(model1.2_plot)[1:2] <- c("RNAseq", "micro")
 ggplot(model1.2_plot) +
   geom_point(aes(RNAseq, micro, col = Gender, shape = Gender))
@@ -103,7 +103,7 @@ saveRDS(model2.1, "data_out/model2.1.RDS")
 
 # * Prepare some random designs ####
 designs <- weight_design(weights = 3, size = 5)
-keep <- vapply(designs, RGCCA::correct, logical(1L))
+keep <- vapply(designs, integration::correct, logical(1L))
 designs <- designs[keep]
 
 # Random subsample of 10% of the trials
