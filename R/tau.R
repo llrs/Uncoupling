@@ -33,10 +33,11 @@ C <-  matrix(c(0, 0, 1, 0, 0, 1, 1, 1, 0), ncol = 3, nrow = 3,
 sgcca_eval <- function(x, scheme) {
   result.sgcca <- sgcca(A, C, c1 = x, scheme = scheme, verbose = FALSE)
   
-  analyze(result.sgcca)
+  inteRmodel::analyze(result.sgcca)
 }
 
 # Centroid ####
+taus.combn <- as.matrix(taus.combn)
 out <- apply(taus.combn, 1, sgcca_eval, scheme = "centroid")
 centroid <- cbind.data.frame(t(out), taus.combn)
 saveRDS(centroid, "data_out/centroid_tau.RDS")
@@ -45,11 +46,11 @@ saveRDS(centroid, "data_out/centroid_tau.RDS")
 plot_tau2AVE <- function(data, title) {
   limits <- c(0.4, 0.7)
   p1 <- data %>%
-    group_by(GE, y) %>%
+    group_by(RNAseq, y) %>%
     summarize(AVE_inner = median(AVE_inner)) %>%
     ungroup() %>%
     ggplot() +
-    geom_point(aes(GE, y, col = AVE_inner)) +
+    geom_point(aes(RNAseq, y, col = AVE_inner)) +
     scale_color_viridis_c(limits = limits) +
     theme_minimal() +
     labs(col = "inner AVE") +
@@ -57,10 +58,10 @@ plot_tau2AVE <- function(data, title) {
     theme(axis.title.y.right = element_text(angle = 0, vjust = 0.5, hjust = 1))
   
   p2 <- data %>%
-    group_by(CGH, y) %>%
+    group_by(micro, y) %>%
     summarize(AVE_inner = median(AVE_inner)) %>%
     ggplot() +
-    geom_point(aes(CGH, y, col = AVE_inner)) +
+    geom_point(aes(micro, y, col = AVE_inner)) +
     scale_color_viridis_c(limits = limits) +
     theme_minimal() +
     labs(col = "inner AVE") +
