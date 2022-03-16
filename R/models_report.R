@@ -1,6 +1,7 @@
 library("ggplot2")
 library("UpSetR")
 library("integration")
+library("pROC")
 
 A <- readRDS("data_out/RGCCA_uncoupling_data.RDS")
 meta <- A$meta
@@ -45,6 +46,7 @@ df <- rbind(
 
 df <- merge(df, meta, by.x = "Rownames", by.y = "ID", all = TRUE)
 saveRDS(df, "data_out/models_summary.RDS")
+df <- readRDS("data_out/models_summary.RDS")
 
 theme_set(theme_bw())
 theme_update(strip.background = element_blank(), 
@@ -70,3 +72,40 @@ df %>%
   labs(title = "Samples by model", x = "Transcriptome", y = "Microbiome") +
   scale_x_continuous(breaks = seq(-1, 1, by = 0.25)) +
   scale_y_continuous(breaks = seq(-1, 1, by = 0.25))
+
+
+
+p1 <- df %>% 
+  filter(!grepl(" i$", Model)) %>% 
+  filter(Component == "comp1") %>% 
+  ggplot(aes(d = ifelse(Location == "Ileum", 1, 0), m = GE, col = Model)) + 
+  plotROC::geom_roc(increasing = FALSE, labels = FALSE, n.cuts = 0) + 
+  plotROC::style_roc()
+p1 +
+  geom_abline(slope = 1, intercept = 0, col = "gray") +
+  # facet_wrap(~Model, nrow = 2) + 
+  labs(title = "Location in GE", x = "FP", y = "TP") 
+ggsave("Figures/AUC-rgcca.png")
+
+m0GE <- filter(df, Model == "0", Component == "comp1")
+roc0_loc <- multiclass.roc(response = m0GE$Location,
+                          predictor = m0GE$GE,
+                          levels  = unique(m0GE$Location))
+roc0_type <- multiclass.roc(response = m0GE$Type,
+                           predictor = m0GE$GE,
+                           levels  = unique(m0GE$Type))
+m1.2GE <- filter(df, Model == "1.2", Component == "comp1")
+roc1.2_loc <- multiclass.roc(response = m1.2GE$Location,
+                          predictor = m1.2GE$GE,
+                          levels  = unique(m1.2GE$Location))
+roc1.2_type <- multiclass.roc(response = m1.2GE$Type,
+                           predictor = m1.2GE$GE,
+                           levels  = unique(m1.2GE$Type))
+
+m2.2GE <- filter(df, Model == "2.2", Component == "comp1")
+roc2.2_loc <- multiclass.roc(response = m2.2GE$Location,
+                          predictor = m2.2GE$GE,
+                          levels  = unique(m2.2GE$Location))
+roc2.2_type <- multiclass.roc(response = m2.2GE$Type,
+                           predictor = m2.2GE$GE,
+                           levels  = unique(m2.2GE$Type))

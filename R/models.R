@@ -137,9 +137,9 @@ saveRDS(out3, "data_out/sample_model3_refined.RDS")
 
 out3 <- readRDS("data_out/sample_model3_refined.RDS")
 a <- vapply(out3, is, class = "numeric", logical(1L))
-out4 <- simplify2array(out3[a])
+out4 <- simplify2array(out3[, a])
 
-out <- rbind(out2, t(out4))
+out <- rbind(out2, t(out3))
 
 
 
@@ -169,12 +169,12 @@ ggplot(model2.2_Y) +
 meta %>% 
   count(Location, Type, sort = TRUE)
 # Not possible to run due to the number of combinations of the designs
-out_model <- search_model(A = A2b, c1 = c(shrinkage, 1, 1, 1), scheme = "centroid",
-                          scale = FALSE, verbose = FALSE,
-                          ncomp = rep(1, length(A2b)),
-                          bias = TRUE,
-                          nWeights = 11,
-                          BPPARAM = BiocParallel::MulticoreParam(workers = 6))
+# out_model <- search_model(A = A2b, c1 = c(shrinkage, 1, 1, 1), scheme = "centroid",
+#                           scale = FALSE, verbose = FALSE,
+#                           ncomp = rep(1, length(A2b)),
+#                           bias = TRUE,
+#                           nWeights = 11,
+#                           BPPARAM = BiocParallel::MulticoreParam(workers = 6))
 
 # Search all models
 saveRDS(out_model, "data_out/uncoupling_models2.RDS")
