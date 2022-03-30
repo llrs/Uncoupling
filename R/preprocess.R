@@ -140,3 +140,25 @@ stopifnot(nrow(otus3) - nrow(OTUs) == 726)
 
 A <- list(RNAseq = expr, micro = OTUs, meta = meta)
 saveRDS(A, "data_out/RGCCA_uncoupling_data.RDS")
+
+
+A <- readRDS("data_out/RGCCA_uncoupling_data.RDS")
+
+pca <- function(x, meta){
+  pca_s <- prcomp(x, scale. = TRUE)
+  pca_s_x <- as.data.frame(pca_s$x)
+  cbind(pca_s_x[, 1:5], meta) # Just the first 5 PC
+}
+
+pca_RNAseq <- pca(t(A$RNAseq), A$meta)
+pca_micro <- pca(t(A$micro), A$meta)
+
+library("ggplot2")
+ggplot(pca_RNAseq) +
+  geom_point(aes(PC1, PC2, col = Location, shape = Location)) +
+  theme_minimal() +
+  labs(title = "PCA RNAseq")
+ggplot(pca_micro) +
+  geom_point(aes(PC1, PC2, col = Location, shape = Location)) +
+  theme_minimal() +
+  labs(title = "PCA 16S")
